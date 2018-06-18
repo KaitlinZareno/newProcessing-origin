@@ -1,0 +1,60 @@
+# Arduino demon
+servoPin = 7
+colCount = 2
+rowCount = 360
+positions = [[0 for j in range(colCount)] for i in range(rowCount)]
+xC =0
+#need to make and incriment global variable xC which is essentially record to get correct values
+
+
+def setup():
+    size(360, 50)
+    frameRate(100)
+
+# will need to initialize and make values for positions in here so there
+# is no loop
+
+    for i in range(360):
+        if (i < 180):
+            positions[i][0] = 0
+            positions[i][1] = 0
+            # print(positions[i][0])
+        if (i >= 180):
+            positions[i][0] = 180
+            positions[i][1] = 180
+        # print("Array 0 positions: " + str(positions[i][0]))
+        # print("Array 1 positions: " + str(positions[i][1]))
+        # print("i" + str(i))
+    
+def measureAngle():
+    numRows = 360
+    
+    #ONLY NEED TO DECLARE GLOBAL ONCE IN FUNCTION (AT VERY BEGINNING)
+    #NEED TO DECLARE GLOBAL VARIABLE BEFORE ABLE TO USE AND INCRIMENT IT
+    #need to incriment global variable so when draw() loops and calls measureAngle(), it only reads 1 angle per mouseX value
+    global xC 
+    
+    if xC < numRows:
+    #constrain values to 180 since servo can only move 180 degrees
+        positions[xC][1] = constrain(mouseX/2, 0, 180)
+        print ("Angle Measure: " + str(positions[xC][1]))
+        print ("Row Count: " + str(xC))
+    else:
+        #set background to a different color to tell when the array has been filled (360 angles)
+        background(0)
+        
+    xC = xC + 1
+
+            
+
+def draw():
+    delay(17)
+
+    measureAngle()
+
+    # every time a new angle is read in, it will be saved to a file (will loop through array)
+    with open('ServoAnglesPy.txt', 'w') as f:
+        for i in range(360):
+            number = str(positions[i][1])
+            f.write(number +'\n')
+    
