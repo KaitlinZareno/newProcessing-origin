@@ -35,7 +35,7 @@ def setup():
 #initialize open CV
 
 def parseFile():
-    with open('ServoAngles9.txt', 'r') as f:
+    with open('ServoAnglesPy.txt', 'r') as f:
         for i in range (360):
           angles = f.readline()
           positions[i][0] = angles;
