@@ -29,8 +29,11 @@ int trackX;
 int angle;
 
 //mouth
-int servoPin8 = 8;
-int mouthFrames =1080;
+int motorChannel = 12;
+int brakeChannel = 9;
+int dqAnalog = 3; 
+//int servoPin8 = 8;
+//int mouthFrames =1080;
 
 //arrays
 int[] eyebrows = new int[1080];
@@ -63,11 +66,14 @@ void setup() {
   demon.pinMode(servoPin4, Arduino.SERVO);
   
   //mouth
-  
-  demon.pinMode(servoPin8, Arduino.SERVO);
+  demon.pinMode(motorChannel, Arduino.OUTPUT);
+  demon.pinMode(brakeChannel, Arduino.OUTPUT);
+  demon.digitalWrite(12, Arduino.HIGH);
+  demon.analogWrite(3,255);
+  //demon.pinMode(servoPin8, Arduino.SERVO);
   
   String[] cameras = Capture.list();
-  println(cameras);
+  //println(cameras);
   //video = new Capture(this, 640/2,480/2, cameras[15]);
   video = new Capture(this, 640/2, 480/2);
   opencv = new OpenCV(this, 640/2, 480/2);
@@ -77,7 +83,7 @@ void setup() {
   
   initEyebrows();
   initBlink();
-  initMouth();
+  //initMouth();
 }
 
 void initEyebrows(){
@@ -103,7 +109,7 @@ void initBlink(){
    }
 }
 
-void initMouth(){
+/*void initMouth(){
     for (int i=0;i<mouthFrames;i++){
       if (i<360){
         mouth[i] = 0;
@@ -115,52 +121,13 @@ void initMouth(){
         mouth[i] =90;
       }
   }
-}
-void draw() {
-  scale(2);
-  opencv.loadImage(video);
-
-  image(video, 0, 0 );
-
-  noFill();
-  stroke(0, 255, 0);
-  strokeWeight(3);
-  Rectangle[] faces = opencv.detect();
-  println(faces.length);
-
-  for (int i = 0; i < faces.length; i++) {
-    println(faces[i].x + "," + faces[i].y);
-   
-    faceWidth = faces[i].width;
-    faceHeight = faces[i].height;
-    faceArea = faceWidth * faceHeight;
-    rect(faces[i].x, faces[i].y, faces[i].width, faces[i].height);
-    trackX = (faces[i].x + faces[i].width/2);
-    println(faceArea);
-  }
-  
-  eyeballs();
-  
-  if (faceArea >= 5000){
-         closeEyebrows();
-         //openMouth();
-    }
-    
-     //intermittentBlink();
-  }
-  
+}*/
 
 void closeEyebrows(){
     for (int c=0;c<frames;c++){
      demon.servoWrite(servoPin7,eyebrows[c]);
      demon.servoWrite(servoPin13,eyebrows[c]);
      //delay(17);
-  }
-}
-
-void openMouth(){
-  for (int c=0;c<mouthFrames;c++){
-    demon.servoWrite(servoPin8, mouth[c]);
   }
 }
 
@@ -190,6 +157,55 @@ void eyeballs() {
         }
     }
   }
+  
+void mouth(){
+  rect(0, 0, width/2, height);
+  fill(0, 255, 0);
+  rect(width/2, 0, width/2, height);
+  
+  if(mouseX < width/2){
+  demon.digitalWrite(9, Arduino.HIGH);
+  }else if (mouseX > width/2){
+    demon.digitalWrite(9, Arduino.LOW);  //Engage the Brake for Channel A
+  }
+}
+  
+
+void draw() {
+  scale(2);
+  opencv.loadImage(video);
+
+  image(video, 0, 0 );
+
+  noFill();
+  stroke(0, 255, 0);
+  strokeWeight(3);
+  Rectangle[] faces = opencv.detect();
+  println(faces.length);
+
+  for (int i = 0; i < faces.length; i++) {
+    println(faces[i].x + "," + faces[i].y);
+   
+    faceWidth = faces[i].width;
+    faceHeight = faces[i].height;
+    faceArea = faceWidth * faceHeight;
+    rect(faces[i].x, faces[i].y, faces[i].width, faces[i].height);
+    trackX = (faces[i].x + faces[i].width/2);
+    println(faceArea);
+  }
+  
+  //call recurring functions
+  
+  eyeballs();
+  
+  if (faceArea >= 5000){
+         closeEyebrows();
+         //openMouth();
+    }
+    
+  mouth();
+}
+ 
 
 void captureEvent(Capture c) {
   c.read();
