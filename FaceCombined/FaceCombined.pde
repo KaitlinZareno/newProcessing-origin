@@ -13,18 +13,18 @@ int screenArea = 307200;
 int faceWidth;
 int faceHeight;
 int faceArea;
-int servoPin7 = 7;
-int servoPin13 = 13;
+int servoPin7 = 7; //left eyebrow
+int servoPin6 = 6; //right eyebrow
 int frames =1080;
 
 //for eye blink
 int servoPin1 = 1;
-int servoPin2 = 2;
+int servoPin3 = 3;
 int eyeFrames = 720;
 
 //for eyeball
-int servoPin3 = 3;
-int servoPin4 = 4;
+int servoPin2 = 2; //left eye
+int servoPin4 = 4; // right eye
 int trackX;
 int angle;
 
@@ -51,11 +51,11 @@ void setup() {
   size(640, 480);  
   
   println(Arduino.list());
-  demon = new Arduino(this, "/dev/tty.usbmodem1411", 57600);
+  demon = new Arduino(this, "/dev/tty.usbmodem1421", 57600);
   
   //eyebrows
   demon.pinMode(servoPin7, Arduino.SERVO);
-  demon.pinMode(servoPin13, Arduino.SERVO);
+  demon.pinMode(servoPin6, Arduino.SERVO);
   
   //eye blink
   demon.pinMode(servoPin1, Arduino.SERVO);
@@ -73,9 +73,11 @@ void setup() {
   //demon.pinMode(servoPin8, Arduino.SERVO);
   
   String[] cameras = Capture.list();
-  //println(cameras);
-  //video = new Capture(this, 640/2,480/2, cameras[15]);
-  video = new Capture(this, 640/2, 480/2);
+  println(cameras);
+  video = new Capture(this, 640/2,480/2, cameras[15]);
+  //15 is external camera
+
+  //video = new Capture(this, 640/2, 480/2);
   opencv = new OpenCV(this, 640/2, 480/2);
   opencv.loadCascade(OpenCV.CASCADE_FRONTALFACE);
 
@@ -126,7 +128,7 @@ void initBlink(){
 void closeEyebrows(){
     for (int c=0;c<frames;c++){
      demon.servoWrite(servoPin7,eyebrows[c]);
-     demon.servoWrite(servoPin13,eyebrows[c]);
+     demon.servoWrite(servoPin6,eyebrows[c]);
      //delay(17);
   }
 }
@@ -134,7 +136,7 @@ void closeEyebrows(){
 void intermittentBlink(){
     for(int i=0;i<eyeFrames;i++){
     demon.servoWrite(servoPin1, blinkSequence[i]);
-    demon.servoWrite(servoPin2, blinkSequence[i]);
+    demon.servoWrite(servoPin3, blinkSequence[i]);
     //delay(17);
   }
 }
@@ -147,9 +149,9 @@ void eyeballs() {
         //divides and constrains the x value of your face to between 0-180 degrees
         angle = constrain((trackX/4),0,180);
         //makes the servo move to the required angle to "track" face
-        demon.servoWrite(servoPin3, angle);
+        demon.servoWrite(servoPin2, angle);
         demon.servoWrite(servoPin4, angle);
-        //demon.servoWrite(servoPin13, angle);
+        //demon.servoWrite(servoPin6, angle);
         //a check
         println("X position of face is: " + trackX);
         println("angle of motor is: " + angle);
