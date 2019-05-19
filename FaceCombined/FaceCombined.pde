@@ -23,14 +23,12 @@ int servoPin3 = 3;
 int eyeFrames = 720;
 
 //for eyeball
-int servoPin2 = 2; //left eye
+int servoPin10 = 10; //left eye
 int servoPin4 = 4; // right eye
 int trackX;
 int angle;
 
 //mouth
-int motorChannel = 12;
-int brakeChannel = 9;
 int dqAnalog = 3; 
 //int servoPin8 = 8;
 //int mouthFrames =1080;
@@ -59,22 +57,23 @@ void setup() {
   
   //eye blink
   demon.pinMode(servoPin1, Arduino.SERVO);
-  //demon.pinMode(servoPin2, Arduino.SERVO);
+  //demon.pinMode(servoPin10, Arduino.SERVO);
   
   //eyeball
   demon.pinMode(servoPin3, Arduino.SERVO);
   demon.pinMode(servoPin4, Arduino.SERVO);
   
   //mouth
-  demon.pinMode(motorChannel, Arduino.OUTPUT);
-  demon.pinMode(brakeChannel, Arduino.OUTPUT);
+  demon.pinMode(12, Arduino.OUTPUT);
   demon.digitalWrite(12, Arduino.HIGH);
+  demon.pinMode(9, Arduino.OUTPUT);
+  demon.digitalWrite(9, Arduino.LOW);  
   demon.analogWrite(3,255);
   //demon.pinMode(servoPin8, Arduino.SERVO);
   
   String[] cameras = Capture.list();
   println(cameras);
-  video = new Capture(this, 640/2,480/2, cameras[15]);
+  video = new Capture(this, 640/2,480/2);
   //15 is external camera
 
   //video = new Capture(this, 640/2, 480/2);
@@ -149,7 +148,7 @@ void eyeballs() {
         //divides and constrains the x value of your face to between 0-180 degrees
         angle = constrain((trackX/4),0,180);
         //makes the servo move to the required angle to "track" face
-        demon.servoWrite(servoPin2, angle);
+        demon.servoWrite(servoPin10, angle);
         demon.servoWrite(servoPin4, angle);
         //demon.servoWrite(servoPin6, angle);
         //a check
@@ -160,17 +159,19 @@ void eyeballs() {
     }
   }
   
-void mouth(){
+void mouthMove(){
   rect(0, 0, width/2, height);
   fill(0, 255, 0);
   rect(width/2, 0, width/2, height);
   
-  if(mouseX < width/2){
   demon.digitalWrite(9, Arduino.HIGH);
-  }else if (mouseX > width/2){
-    demon.digitalWrite(9, Arduino.LOW);  //Engage the Brake for Channel A
-  }
+  //demon.digitalWrite(9, Arduino.LOW);  //Engage the Brake for Channel A
 }
+
+void mouthClose(){
+  demon.digitalWrite(9, Arduino.LOW);  //Engage the Brake for Channel A
+}
+
   
 
 void draw() {
@@ -202,10 +203,10 @@ void draw() {
   
   if (faceArea >= 5000){
          closeEyebrows();
-         //openMouth();
+         mouthMove();
     }
     
-  mouth();
+  //mouthMove();
 }
  
 
